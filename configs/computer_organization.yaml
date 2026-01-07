@@ -1,0 +1,119 @@
+# 计算机组成原理试卷配置
+subject_name: 计算机组成原理
+subject_id: comp_org
+
+# 试卷结构识别模式
+paper_pattern: '卷([一二三四五六七])'
+type_pattern: '^([一二三四五六七八九十])、\s*([^、\n]{2,15})(?:题|题|$)'
+
+# 题目提取模式（按优先级）
+question_patterns:
+  - '(\d+)[.．、]\s*([^A-D\s][^A-D]*?)(?=\n\d+\.|\n[A-D]\.|$)'
+  - '(\d+)[.．、]\s*([^\n]+(?:\n[A-D]\.[^\n]+)*)'
+  - '(\d+)\s+([^、\n]{10,})'
+
+# 知识点标签关键词
+tags:
+  CPU:
+    - 指令
+    - 指令系统
+    - 指令集
+    - 流水线
+    - 控制器
+    - 运算器
+    - ALU
+    - CU
+    - 微程序
+    - 微指令
+    - RISC
+    - CISC
+    - 超标量
+    - 超流水线
+
+  Memory:
+    - Cache
+    - 主存
+    - 内存
+    - 虚拟
+    - 页式
+    - 段式
+    - 段页式
+    - TLB
+    - 快表
+    - 相联
+    - 直接映射
+    - 全相联
+    - 组相联
+    - 替换算法
+    - LRU
+    - FIFO
+
+  IO:
+    - 中断
+    - DMA
+    - 通道
+    - 接口
+    - 外设
+    - I/O
+    - 程序查询
+    - 中断方式
+    - DMA方式
+
+  Data:
+    - 补码
+    - 原码
+    - 反码
+    - 浮点
+    - IEEE754
+    - 定点
+    - 海明码
+    - CRC
+    - 奇偶校验
+    - 阶码
+    - 尾数
+    - 规格化
+
+  Bus:
+    - 总线
+    - 系统总线
+    - 数据总线
+    - 地址总线
+    - 控制总线
+    - 总线仲裁
+    - 传输率
+    - 带宽
+
+  Storage:
+    - 闪存
+    - Flash
+    - ROM
+    - RAM
+    - EPROM
+    - EEPROM
+    - 磁盘
+    - 光盘
+    - 存储器
+    - 位扩展
+    - 字扩展
+
+# 题型到难度的映射
+difficulty_map:
+  单项选择: Simple
+  选择题: Simple
+  选择: Simple
+  填空: Simple
+  填空题: Simple
+  判断: Simple
+  判断题: Simple
+  名词解释: Medium
+  简答: Medium
+  简答题: Medium
+  计算: Medium
+  计算题: Medium
+  应用: Medium
+  应用题: Medium
+  分析: Medium
+  设计: Hard
+  设计题: Hard
+  综合: Hard
+  综合题: Hard

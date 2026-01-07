@@ -1,0 +1,41 @@
+# 默认通用配置（无法识别学科时使用）
+subject_name: 通用
+subject_id: default
+
+# 试卷结构识别模式
+paper_pattern: '卷([一二三四五六七])'
+type_pattern: '^([一二三四五六七八九十])、\s*([^、\n]{2,15})(?:题|题|$)'
+
+# 题目提取模式（按优先级）
+question_patterns:
+  - '(\d+)[.．、]\s*([^A-D\s][^A-D]*?)(?=\n\d+\.|\n[A-D]\.|$)'
+  - '(\d+)[.．、]\s*([^\n]+(?:\n[A-D]\.[^\n]+)*)'
+  - '(\d+)\s+([^、\n]{10,})'
+
+# 通用知识点标签
+tags:
+  Other: []
+
+# 题型到难度的映射
+difficulty_map:
+  单项选择: Simple
+  选择题: Simple
+  选择: Simple
+  填空: Simple
+  填空题: Simple
+  判断: Simple
+  判断题: Simple
+  名词解释: Medium
+  简答: Medium
+  简答题: Medium
+  计算: Medium
+  计算题: Medium
+  应用: Medium
+  应用题: Medium
+  分析: Medium
+  设计: Hard
+  设计题: Hard
+  综合: Hard
+  综合题: Hard
+  算法: Hard
+  编程: Hard

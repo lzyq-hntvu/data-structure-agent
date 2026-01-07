@@ -108,6 +108,24 @@ class ETLConfig:
             '设计': 'Hard',
         })
 
+    @property
+    def OCR_QUESTION_PATTERNS(self) -> List[str]:
+        """OCR友好的题目提取模式（更宽松的正则）"""
+        return self.subject_config.get('ocr_question_patterns', [
+            r'(\d+)[.．、。]\s*([^A-D\s][^A-D]*?)(?=\n\d+\.|\n[A-D]\.|$)',
+            r'(\d+)[.．、。]\s*([^\n]+(?:\n[A-D][.\)、][^\n]+)*)',
+            r'(\d+)\s+[(\[]?\d+[)\]]?\s*([^、\n]{5,})',
+            r'(\d+)[.．、]\s*(.{10,})',
+        ])
+
+    def _str_to_bool(self, value) -> bool:
+        """转换字符串为布尔值"""
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            return value.lower() in ('true', '1', 'yes', 'on')
+        return bool(value)
+
     def get_subject_name(self) -> str:
         """获取当前学科名称"""
         return self.subject_config.get('subject_name', '通用')

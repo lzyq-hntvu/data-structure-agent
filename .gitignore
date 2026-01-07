@@ -17,6 +17,9 @@ data/output/*.md
 data/input/*.pdf
 data/input/*.PDF
 
+# OCR缓存
+.cache/
+
 # IDE
 .vscode/
 .idea/

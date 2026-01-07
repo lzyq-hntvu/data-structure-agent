@@ -21,6 +21,11 @@ class ExamParser:
         self.paper_pattern = re.compile(config.PAPER_PATTERN)
         self.type_pattern = re.compile(config.TYPE_PATTERN)
 
+        # OCR友好的正则模式（更宽松）
+        self.ocr_question_patterns = [
+            re.compile(p) for p in config.OCR_QUESTION_PATTERNS
+        ]
+
     def _setup_logger(self) -> logging.Logger:
         """设置日志"""
         logger = logging.getLogger(self.__class__.__name__)
@@ -37,10 +42,10 @@ class ExamParser:
         识别试卷各部分（卷、题型）
 
         Args:
-            pages_text: 页面文本列表
+            pages_text: 页面文本列表，包含source标记
 
         Returns:
-            List[Dict]: 识别出的部分列表
+            List[Dict]: 识别出的部分列表，包含source标记
         """
         print("\n📋 步骤2: 识别试卷结构...")
 
@@ -48,9 +53,12 @@ class ExamParser:
         current_paper = None
         current_type = None
         current_content = []
+        current_source = 'pdfplumber'  # 跟踪当前内容的来源
 
         for page in pages_text:
             lines = page['text'].split('\n')
+            # 记录此页的来源
+            page_source = page.get('source', 'pdfplumber')
 
             for line in lines:
                 line = line.strip()
@@ -65,12 +73,14 @@ class ExamParser:
                         sections.append({
                             'paper': current_paper,
                             'type': current_type or 'Unknown',
-                            'content': '\n'.join(current_content)
+                            'content': '\n'.join(current_content),
+                            'source': current_source
                         })
 
                     current_paper = f"卷{paper_match.group(1)}"
                     current_type = None
                     current_content = []
+                    current_source = page_source
                     continue
 
                 # 检测是否是新的题型
@@ -81,11 +91,13 @@ class ExamParser:
                         sections.append({
                             'paper': current_paper,
                             'type': current_type or 'Unknown',
-                            'content': '\n'.join(current_content)
+                            'content': '\n'.join(current_content),
+                            'source': current_source
                         })
 
                     current_type = type_match.group(1)
                     current_content = []
+                    current_source = page_source
                     continue
 
                 # 收集题目内容
@@ -97,7 +109,8 @@ class ExamParser:
             sections.append({
                 'paper': current_paper,
                 'type': current_type or 'Unknown',
-                'content': '\n'.join(current_content)
+                'content': '\n'.join(current_content),
+                'source': current_source
             })
 
         # 打印识别结果
@@ -114,10 +127,10 @@ class ExamParser:
 
     def extract_questions_from_section(self, section: Dict) -> List[Dict]:
         """
-        从section中提取题目
+        从section中提取题目（支持OCR容错）
 
         Args:
-            section: 试卷部分
+            section: 试卷部分，包含source标记
 
         Returns:
             List[Dict]: 题目列表
@@ -125,12 +138,25 @@ class ExamParser:
         questions = []
         content = section['content']
 
-        for pattern in self.config.QUESTION_PATTERNS:
+        # 检测是否为OCR文本
+        is_ocr_text = section.get('source') == 'ocr'
+
+        # 选择合适的正则模式
+        patterns_to_use = self.config.QUESTION_PATTERNS
+        if is_ocr_text:
+            # OCR文本：先尝试OCR专用模式，再尝试常规模式
+            patterns_to_use = self.config.OCR_QUESTION_PATTERNS + self.config.QUESTION_PATTERNS
+
+        for pattern in patterns_to_use:
             matches = re.finditer(pattern, content, re.MULTILINE)
 
             for match in matches:
                 q_num = match.group(1)
                 q_content = match.group(2).strip()
+
+                # OCR容错处理
+                if is_ocr_text:
+                    q_content = self._clean_ocr_content(q_content)
 
                 # 清理内容
                 q_content = re.sub(r'\s+', ' ', q_content)
@@ -155,6 +181,45 @@ class ExamParser:
                 break
 
         return questions
+
+    def _clean_ocr_content(self, content: str) -> str:
+        """
+        清理OCR识别的题目内容，修正常见OCR错误
+
+        Args:
+            content: OCR识别的内容
+
+        Returns:
+            str: 清理后的内容
+        """
+        if not content:
+            return content
+
+        # 常见OCR错误修正
+        corrections = {
+            'O ': '0 ',  # 题号中的O可能是0
+            ' l ': ' 1 ',  # 选项中的l可能是1
+            '⑴': '(1)',
+            '⑵': '(2)',
+            '⑶': '(3)',
+            '⑷': '(4)',
+            '⑸': '(5)',
+            '⑹': '(6)',
+            '⑺': '(7)',
+            '⑻': '(8)',
+            '⑼': '(9)',
+            '⑽': '(10)',
+            '①': '(1)',
+            '②': '(2)',
+            '③': '(3)',
+            '④': '(4)',
+            '⑤': '(5)',
+        }
+
+        for wrong, correct in corrections.items():
+            content = content.replace(wrong, correct)
+
+        return content
 
     def extract_questions(self, sections: List[Dict]) -> List[Dict]:
         """

@@ -12,7 +12,7 @@ import logging
 from pathlib import Path
 
 from config import ETLConfig
-from extractor import PDFExtractor
+from extractor import HybridExtractor
 from parser import ExamParser
 from tagger import QuestionTagger
 from exporter import CSVExporter
@@ -119,8 +119,8 @@ def main():
 
     # 执行ETL流程
     try:
-        # 步骤1: 提取PDF内容
-        extractor = PDFExtractor(config)
+        # 步骤1: 提取PDF内容（使用混合提取器：pdfplumber + OCR回退）
+        extractor = HybridExtractor(config)
         pages = extractor.extract()
 
         # 步骤2: 识别试卷结构

@@ -17,28 +17,44 @@ tags:
   Other: []
 
 # 题型到难度的映射
+# 键是题型名称的子串，会进行部分匹配
 difficulty_map:
+  # Simple难度题型
   单项选择: Simple
+  多项选择: Simple
   选择题: Simple
   选择: Simple
   填空: Simple
   填空题: Simple
   判断: Simple
   判断题: Simple
-  名词解释: Medium
+  是非: Simple
+  是非题: Simple
+  名词解释: Simple
+
+  # Medium难度题型
+  应用: Medium
+  应用题: Medium
   简答: Medium
   简答题: Medium
   计算: Medium
   计算题: Medium
-  应用: Medium
-  应用题: Medium
   分析: Medium
+  分析题: Medium
+  证明: Medium
+  证明题: Medium
+  综合: Medium
+  综合题: Medium
+
+  # Hard难度题型
+  算法: Hard
+  算法题: Hard
   设计: Hard
   设计题: Hard
-  综合: Hard
-  综合题: Hard
-  算法: Hard
   编程: Hard
+  编程题: Hard
+  实现: Hard
+  实现题: Hard
 
 # OCR配置
 # OCR友好的题目提取模式（更宽松的正则，适应OCR识别错误）

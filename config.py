@@ -18,8 +18,8 @@ class ETLConfig:
     """ETL配置管理类（支持多学科）"""
 
     # 默认路径
-    DEFAULT_PDF_PATH = "data/input/转 Word_数据结构卷一.pdf"
-    DEFAULT_OUTPUT_CSV = "data/output/exam_analysis.csv"
+    DEFAULT_PDF_PATH = "data/input/data_structure_ocr.pdf"
+    DEFAULT_OUTPUT_CSV = "data/output/exam_analysis.csv"  # 未指定输出时不再使用，保留作为备用
 
     # 通用数据验证规则
     MIN_CONTENT_LENGTH = 10
@@ -41,12 +41,20 @@ class ETLConfig:
 
         Args:
             pdf_path: PDF文件路径
-            output_csv: 输出CSV路径
+            output_csv: 输出CSV路径（如果未指定，将根据PDF文件名自动生成）
             subject_id: 手动指定学科ID（如 'comp_org', 'data_structure'）
             auto_detect: 是否自动检测学科（默认True）
         """
         self.pdf_path = Path(pdf_path or os.getenv('PDF_PATH', self.DEFAULT_PDF_PATH))
-        self.output_csv = Path(output_csv or os.getenv('OUTPUT_CSV', self.DEFAULT_OUTPUT_CSV))
+
+        # 如果未指定输出文件，从PDF文件名自动生成
+        if output_csv or os.getenv('OUTPUT_CSV'):
+            self.output_csv = Path(output_csv or os.getenv('OUTPUT_CSV'))
+        else:
+            # 自动生成: data/input/xxx.pdf -> data/output/xxx.csv
+            output_dir = Path('data/output')
+            output_filename = self.pdf_path.stem + '.csv'
+            self.output_csv = output_dir / output_filename
 
         # 处理配置
         self.min_content_length = int(os.getenv('MIN_CONTENT_LENGTH', self.MIN_CONTENT_LENGTH))

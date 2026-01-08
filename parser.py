@@ -95,7 +95,9 @@ class ExamParser:
                             'source': current_source
                         })
 
-                    current_type = type_match.group(1)
+                    # type_pattern.group(1) 是数字(如"一"), group(2) 是题型名称(如"单项选择题")
+                    # 我们使用 group(2) 来获取实际的题型名称
+                    current_type = type_match.group(2) if type_match.lastindex >= 2 else type_match.group(1)
                     current_content = []
                     current_source = page_source
                     continue
